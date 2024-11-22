@@ -125,9 +125,8 @@ namespace ConsoleApp1
                     if (ReelMotor[r] > 0)
                     {
                         SpinReel(r);
+                        ReelMotor[r]--;
                     }
-
-                    ReelMotor[r]--;
                 }
 
                 // Remove following to speed up calculations

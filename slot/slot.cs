@@ -75,7 +75,8 @@ namespace ConsoleApp1
             }
 
             NumLoses -= NumWins;
-
+            
+            // 10 is used for 10p a spin instead of £1
             CalcRTP = (totalPayout / (NumSpins / 10)) * 100;
 
             const double house = NumSpins / 10;

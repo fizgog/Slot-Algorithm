@@ -7,6 +7,8 @@ namespace ConsoleApp1
     /// </summary>
     public static class SlotMachine
     {
+        // Toggle this to swap between mechanical and virtual slot machine
+        private static bool MECHANICAL = true;
         private const int REEL_WIDTH = 3;
         private const int REEL_HEIGHT = 3;
 
@@ -35,11 +37,11 @@ namespace ConsoleApp1
         // Used for the number of times the reel motor turns
         private static readonly int[] ReelMotor = [0, 0, 0];
 
-        // Only used if symbols on the reel are static like a mechanical slot
+        // Only used if symbols on the reel are static like a MECHANICAL slot
         private static readonly int[] ReelIndex = [0, 0, 0];
 
         // Used for the 3x3 grid of symbols
-        private static readonly string[,] reels = new string[REEL_WIDTH, REEL_HEIGHT];
+        private static readonly string[,] reels = new string[REEL_HEIGHT, REEL_WIDTH];
 
         // Total Payout to Customer
         private static double totalPayout = 0;
@@ -66,6 +68,10 @@ namespace ConsoleApp1
             // Hide the cursor
             Console.CursorVisible = false;
 
+            // Remove following to speed up calculations
+            // PrintReels();
+            // Console.ReadLine();
+
             for (int s = 0; s < NumSpins; s++)
             {
                 Console.SetCursorPosition(0, 0);
@@ -75,7 +81,7 @@ namespace ConsoleApp1
             }
 
             NumLoses -= NumWins;
-            
+
             // 10 is used for 10p a spin instead of £1
             CalcRTP = (totalPayout / (NumSpins / 10)) * 100;
 
@@ -96,15 +102,29 @@ namespace ConsoleApp1
         /// </summary>
         static private void InitialiseReels()
         {
-            // Generate the 3 reels with random data (used for new type slot machine)
-            // if using mechanical type, then just get 3 random reel index, then add 1 and 2 for the other symbols in the reel
-            for (int i = 0; i < REEL_WIDTH; i++)
+            if (MECHANICAL)
             {
-                for (int j = 0; j < REEL_HEIGHT; j++)
+                for (int i = 0; i < REEL_WIDTH; i++)
                 {
                     int rnd = random.Next(int.MaxValue) % symbols.Length;
-                    reels[i, j] = symbols[rnd];
                     ReelIndex[i] = rnd;
+
+                    reels[0, i] = symbols[ReelIndex[i]       % symbols.Length];
+                    reels[1, i] = symbols[(ReelIndex[i] + 1) % symbols.Length];
+                    reels[2, i] = symbols[(ReelIndex[i] + 2) % symbols.Length];
+                }
+            }
+            else
+            {
+                // Generate the 3 reels with random data
+                for (int i = 0; i < REEL_WIDTH; i++)
+                {
+                    for (int j = 0; j < REEL_HEIGHT; j++)
+                    {
+                        int rnd = random.Next(int.MaxValue) % symbols.Length;
+                        reels[i, j] = symbols[rnd];
+                        //ReelIndex[i] = rnd;
+                    }
                 }
             }
         }
@@ -132,7 +152,8 @@ namespace ConsoleApp1
                 }
 
                 // Remove following to speed up calculations
-                //PrintReels();
+                // PrintReels();
+                // Console.ReadLine();
             }
 
             return CheckWin();
@@ -154,17 +175,21 @@ namespace ConsoleApp1
         /// <param name="r"></param>
         static private void SpinReel(int r)
         {
-            reels[r, 2] = reels[r, 1];
-            reels[r, 1] = reels[r, 0];
+            reels[2, r] = reels[1, r];
+            reels[1, r] = reels[0, r];
 
-            // Use this to get the next symbol from the reel (like a mechanical slot machine one)
-            //ReelIndex[r] = (ReelIndex[r] + 1) % symbols.Length;
-            //reels[r, 0] = symbols[ReelIndex[r]];
-
-            // Use this to get a random symbol (like a modern slot machine does)
-            int rnd = random.Next(int.MaxValue) % symbols.Length;
-            ReelIndex[r] = rnd;
-            reels[r, 0] = symbols[rnd];
+            // Use this to get the next symbol from the reel (like a MECHANICAL slot machine one)
+            if (MECHANICAL)
+            {
+                ReelIndex[r] = (ReelIndex[r] + 1) % symbols.Length;
+                reels[0, r] = symbols[ReelIndex[r]];
+            }
+            else
+            {
+                // Use this to get a random symbol (like a modern slot machine does)
+                int rnd = random.Next(int.MaxValue) % symbols.Length;
+                reels[0, r] = symbols[rnd];
+            }
         }
 
         /// <summary>
@@ -193,10 +218,12 @@ namespace ConsoleApp1
         static private bool CheckWin()
         {
             // Check the winning line (middle row) for 3 symbols the same
-            if (reels[0, 1] == reels[1, 1] && reels[1, 1] == reels[2, 1])
+            if (reels[1, 0] == reels[1, 1] && reels[1, 1] == reels[1, 2])
             {
-                string result = reels[0, 1] + reels[1, 1] + reels[2, 1];
+                string result = reels[1, 0] + reels[1, 1] + reels[1, 2];
                 totalPayout += payouts[result];
+                //PrintReels();
+                //Console.ReadLine();
                 return true;
             }
 

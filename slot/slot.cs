@@ -96,7 +96,8 @@ namespace ConsoleApp1
         /// </summary>
         static private void InitialiseReels()
         {
-            // Generate the 3 reels with random data
+            // Generate the 3 reels with random data (used for new type slot machine)
+            // if using mechanical type, then just get 3 random reel index, then add 1 and 2 for the other symbols in the reel
             for (int i = 0; i < REEL_WIDTH; i++)
             {
                 for (int j = 0; j < REEL_HEIGHT; j++)
